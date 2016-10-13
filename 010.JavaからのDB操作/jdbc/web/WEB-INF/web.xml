@@ -8,6 +8,14 @@
         <servlet-name>javadb2</servlet-name>
         <servlet-class>javadb2</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>db_loginsyori</servlet-name>
+        <servlet-class>db_loginsyori</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>home_syori</servlet-name>
+        <servlet-class>home_syori</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>javadb</servlet-name>
         <url-pattern>/javadb</url-pattern>
@@ -15,6 +23,14 @@
     <servlet-mapping>
         <servlet-name>javadb2</servlet-name>
         <url-pattern>/javadb2</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>db_loginsyori</servlet-name>
+        <url-pattern>/db_loginsyori</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>home_syori</servlet-name>
+        <url-pattern>/home_syori</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
