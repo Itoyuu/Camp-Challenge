@@ -16,7 +16,7 @@ import static java.lang.System.out;
  */
 
 //課題.3フォームから受け取ったデータ自体を格納
-public class UserDataBeans {
+public class UserDataBeans  {
   private String name;
   private String type;
   private String tell;

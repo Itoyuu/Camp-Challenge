@@ -11,8 +11,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
     </head>
-    <body>
-         <form action="home_syori" method="post">
+    <body><%//リンクを作る%>
+         <form action="syori" method="post">
             <input type="submit" name ="syouhinntouroku" value="商品登録">
             <input type="submit" name ="syouhinnitirann" value="商品一覧">  
          </form>

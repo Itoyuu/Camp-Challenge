@@ -13,8 +13,8 @@
         <servlet-class>db_loginsyori</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>home_syori</servlet-name>
-        <servlet-class>home_syori</servlet-class>
+        <servlet-name>tourokusyori</servlet-name>
+        <servlet-class>tourokusyori</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>javadb</servlet-name>
@@ -29,8 +29,8 @@
         <url-pattern>/db_loginsyori</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>home_syori</servlet-name>
-        <url-pattern>/home_syori</url-pattern>
+        <servlet-name>tourokusyori</servlet-name>
+        <url-pattern>/tourokusyori</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

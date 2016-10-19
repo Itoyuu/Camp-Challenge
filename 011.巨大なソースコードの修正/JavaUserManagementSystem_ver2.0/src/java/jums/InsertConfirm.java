@@ -1,8 +1,6 @@
 package jums;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Calendar;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,12 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * insertresultと対応するサーブレット
- * フォームから入力された値をセッション経由で受け取り、データベースにinsertする
+ * insertconfirm.jspと対応するサーブレット
+ * フォーム入力された情報はここでセッションに格納し、以降持ちまわることになる
  * 直接アクセスした場合はerror.jspに振り分け
  * @author hayashi-s
  */
-public class InsertResult extends HttpServlet {
+public class InsertConfirm extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,40 +31,34 @@ public class InsertResult extends HttpServlet {
         HttpSession session = request.getSession();
         
         try{
-            //課題2.insertresultにて直リンク防止用の処理
-            request.setCharacterEncoding("UTF-8");//セッションに格納する文字コードをUTF-8に変更
+            request.setCharacterEncoding("UTF-8");//リクエストパラメータの文字コードをUTF-8に変更
+            
+            //アクセスルートチェック
             String accesschk = request.getParameter("ac");
             if(accesschk ==null || (Integer)session.getAttribute("ac")!=Integer.parseInt(accesschk)){
                 throw new Exception("不正なアクセスです");
-            
             }
-//ユーザー情報に対応したJavaBeansオブジェクトに格納していく
-         //6.入力された生年月日の情報がDBに正しく格納されていない。これを修正しなさい
-            UserDataDTO userdata = new UserDataDTO();
-            UserDataBeans udb = (UserDataBeans)session.getAttribute("udb");
-            userdata.setName(udb.getName());
-            Calendar birthday = Calendar.getInstance();
-            birthday.set(Calendar.YEAR,(udb.getYear()));
-            birthday.set(Calendar.MONTH,(udb.getMonth()-1));
-            birthday.set(Calendar.DAY_OF_MONTH,(udb.getDay()));
-            userdata.setBirthday(birthday.getTime());
             
-            userdata.setType(Integer.parseInt((String)udb.getType()));
-            userdata.setTell(udb.getTell());
-            userdata.setComment(udb.getComment());
+            //フォームからの入力を取得して、JavaBeansに格納
+            UserDataBeans udb = new UserDataBeans();
+            udb.setName(request.getParameter("name"));
+            udb.setYear(request.getParameter("year"));
+            udb.setMonth(request.getParameter("month"));
+            udb.setDay(request.getParameter("day"));
+            udb.setType(request.getParameter("type"));
+            udb.setTell(request.getParameter("tell"));
+            udb.setComment(request.getParameter("comment"));
+
+            //ユーザー情報群をセッションに格納
+            session.setAttribute("udb", udb);
+            System.out.println("Session updated!!");
             
-            //DBへデータの挿入
-            UserDataDAO .getInstance().insert(userdata);
-            
-            
-            
-            
-            request.getRequestDispatcher("/insertresult.jsp").forward(request, response);
+            request.getRequestDispatcher("/insertconfirm.jsp").forward(request, response);
         }catch(Exception e){
-            //データ挿入に失敗したらエラーページにエラー文を渡して表示
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
+            
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

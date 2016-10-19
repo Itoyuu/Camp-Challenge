@@ -6,18 +6,23 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 /**
  *
  * @author itou
  */
-public class db_loginsyori extends HttpServlet {
+public class tourokusyori extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -29,41 +34,31 @@ public class db_loginsyori extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, SQLException {
+            throws ServletException, IOException,SQLException {
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+         PrintWriter out = response.getWriter();
 
         Connection controle = null;
         PreparedStatement get = null;
         ResultSet res = null;
+        
+        int nyuryoku = Integer.parseInt(request.getParameter("nyuryoku"));
+        String syohinmei = (request.getParameter("syohinmei"));
+         int kingaku = Integer.parseInt(request.getParameter("kingaku"));
+      
+          try{Class.forName("com.mysql.jdbc.Driver").newInstance();
+    controle = DriverManager.getConnection("jdbc:mysql://localhost:3306/Challenge_db",
+    "itou","s2011026");                                     
 
-        try {
-            request.setCharacterEncoding("UTF-8");
-            Integer id = Integer.parseInt(request.getParameter("id"));
-            String pass = (request.getParameter("pass"));
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            controle = DriverManager.getConnection("jdbc:mysql://localhost:3306/Challenge_db",
-                    "itou", "s2011026");
+    get = controle.prepareStatement("insert into syohintouroku(syohinID,syohinnmei,kinngaku)VALUES(nyuryoku,syohinmei,kingaku,");
+    get.executeUpdate();
+    out.print("登録しました");
+  }catch(SQLException e_sql){out.print("エラーが発生しました" + 
+    e_sql.toString());
+    }catch(Exception e){out.print("エラーが発生しました" + e.toString());}
+    finally{if(controle != null){controle.close();}}
+    }
 
-            get = controle.prepareStatement("select * from userinfomation  where profilesID = ?");
-            get.setInt(1, id);
-            res = get.executeQuery();
-
-            String password =null;
-            while (res.next()) {
-                password = res.getString("pass");
-            }
-            if (pass.equals(password)) {
-                request.getRequestDispatcher("home.jsp").forward(request, response);
-            }
-        } catch (SQLException e_sql) {
-            out.print("エラーが発生しました"
-                    + e_sql.toString());
-        } catch (Exception e) {
-            out.print("エラーが発生しました" + e.toString());
-        } finally {  if (controle != null) {
-                controle.close();
-            }        }  }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -80,7 +75,7 @@ public class db_loginsyori extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (SQLException ex) {
-            Logger.getLogger(db_loginsyori.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(tourokusyori.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -98,7 +93,7 @@ public class db_loginsyori extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (SQLException ex) {
-            Logger.getLogger(db_loginsyori.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(tourokusyori.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -110,5 +105,6 @@ public class db_loginsyori extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }
-}// </editor-fold>
+    }// </editor-fold>
+
+}

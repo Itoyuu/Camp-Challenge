@@ -1,8 +1,6 @@
 package jums;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Calendar;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,37 +31,33 @@ public class InsertResult extends HttpServlet {
         HttpSession session = request.getSession();
         
         try{
-            //課題2.insertresultにて直リンク防止用の処理
-            request.setCharacterEncoding("UTF-8");//セッションに格納する文字コードをUTF-8に変更
+            request.setCharacterEncoding("UTF-8");//リクエストパラメータの文字コードをUTF-8に変更
+            
+            //アクセスルートチェック
             String accesschk = request.getParameter("ac");
             if(accesschk ==null || (Integer)session.getAttribute("ac")!=Integer.parseInt(accesschk)){
                 throw new Exception("不正なアクセスです");
-            
             }
-//ユーザー情報に対応したJavaBeansオブジェクトに格納していく
-         //6.入力された生年月日の情報がDBに正しく格納されていない。これを修正しなさい
-            UserDataDTO userdata = new UserDataDTO();
-            UserDataBeans udb = (UserDataBeans)session.getAttribute("udb");
-            userdata.setName(udb.getName());
-            Calendar birthday = Calendar.getInstance();
-            birthday.set(Calendar.YEAR,(udb.getYear()));
-            birthday.set(Calendar.MONTH,(udb.getMonth()-1));
-            birthday.set(Calendar.DAY_OF_MONTH,(udb.getDay()));
-            userdata.setBirthday(birthday.getTime());
             
-            userdata.setType(Integer.parseInt((String)udb.getType()));
-            userdata.setTell(udb.getTell());
-            userdata.setComment(udb.getComment());
+            UserDataBeans udb = (UserDataBeans)session.getAttribute("udb");
+            
+            //DTOオブジェクトにマッピング。DB専用のパラメータに変換
+            UserDataDTO userdata = new UserDataDTO();
+            udb.UD2DTOMapping(userdata);
             
             //DBへデータの挿入
             UserDataDAO .getInstance().insert(userdata);
             
             
+            //成功したのでセッションの値を削除
+            session.invalidate();
             
+            //結果画面での表示用に入力パラメータ―をリクエストパラメータとして保持
+            request.setAttribute("udb", udb);
             
             request.getRequestDispatcher("/insertresult.jsp").forward(request, response);
         }catch(Exception e){
-            //データ挿入に失敗したらエラーページにエラー文を渡して表示
+            //何らかの理由で失敗したらエラーページにエラー文を渡して表示。想定は不正なアクセスとDBエラー
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }

@@ -1,21 +1,17 @@
 package jums;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Calendar;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
- * insertresultと対応するサーブレット
- * フォームから入力された値をセッション経由で受け取り、データベースにinsertする
- * 直接アクセスした場合はerror.jspに振り分け
+ *
  * @author hayashi-s
  */
-public class InsertResult extends HttpServlet {
+public class ResultDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -28,45 +24,24 @@ public class InsertResult extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        //セッションスタート
-        HttpSession session = request.getSession();
-        
         try{
-            //課題2.insertresultにて直リンク防止用の処理
-            request.setCharacterEncoding("UTF-8");//セッションに格納する文字コードをUTF-8に変更
-            String accesschk = request.getParameter("ac");
-            if(accesschk ==null || (Integer)session.getAttribute("ac")!=Integer.parseInt(accesschk)){
-                throw new Exception("不正なアクセスです");
+            request.setCharacterEncoding("UTF-8");//リクエストパラメータの文字コードをUTF-8に変更
+
+            //DTOオブジェクトにマッピング。DB専用のパラメータに変換
+            UserDataDTO searchData = new UserDataDTO();
+            String id = request.getParameter("id");
+            int id2 =Integer.parseInt(id);
+            searchData.setUserID(id2);
             
-            }
-//ユーザー情報に対応したJavaBeansオブジェクトに格納していく
-         //6.入力された生年月日の情報がDBに正しく格納されていない。これを修正しなさい
-            UserDataDTO userdata = new UserDataDTO();
-            UserDataBeans udb = (UserDataBeans)session.getAttribute("udb");
-            userdata.setName(udb.getName());
-            Calendar birthday = Calendar.getInstance();
-            birthday.set(Calendar.YEAR,(udb.getYear()));
-            birthday.set(Calendar.MONTH,(udb.getMonth()-1));
-            birthday.set(Calendar.DAY_OF_MONTH,(udb.getDay()));
-            userdata.setBirthday(birthday.getTime());
+            UserDataDTO resultData = UserDataDAO .getInstance().searchByID(searchData);
+            request.setAttribute("resultData", resultData);
             
-            userdata.setType(Integer.parseInt((String)udb.getType()));
-            userdata.setTell(udb.getTell());
-            userdata.setComment(udb.getComment());
-            
-            //DBへデータの挿入
-            UserDataDAO .getInstance().insert(userdata);
-            
-            
-            
-            
-            request.getRequestDispatcher("/insertresult.jsp").forward(request, response);
+            request.getRequestDispatcher("/resultdetail.jsp").forward(request, response);  
         }catch(Exception e){
-            //データ挿入に失敗したらエラーページにエラー文を渡して表示
+            //何らかの理由で失敗したらエラーページにエラー文を渡して表示。想定は不正なアクセスとDBエラー
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
-        }
+        }        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
